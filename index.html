@@ -1,97 +1,100 @@
-<?php
-// birthdate_calculator.php
-date_default_timezone_set('Asia/Phnom_Penh');
-
-$result = "";
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $birthdate = $_POST['birthdate'] ?? '';
-
-    if ($birthdate) {
-        $birth = new DateTime($birthdate);
-        $today = new DateTime();
-        $age = $today->diff($birth)->y;
-
-        // Calculate next birthday
-        $nextBirthday = new DateTime($birth->format('m-d'));
-        $nextBirthday->setDate($today->format('Y'), $birth->format('m'), $birth->format('d'));
-
-        if ($nextBirthday < $today) {
-            $nextBirthday->modify('+1 year');
-        }
-
-        $daysLeft = $today->diff($nextBirthday)->days;
-
-        $result = "
-            <div style='margin-top:20px;'>
-                <strong>You are:</strong> $age years old.<br>
-                <strong>Next birthday:</strong> " . $nextBirthday->format('l, d M Y') . "<br>
-                <strong>Days left:</strong> $daysLeft day(s)
-            </div>
-        ";
-    } else {
-        $result = "<div style='color:red;'>Please select your birthdate.</div>";
-    }
-}
-?>
-
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Birthdate Calculator</title>
-<style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Birthdate Age Calculator</title>
+  <style>
     body {
-        font-family: Arial, sans-serif;
-        background: linear-gradient(180deg, #0f1724, #050c16);
-        color: #fff;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        margin: 0;
+      font-family: "Poppins", sans-serif;
+      background: linear-gradient(135deg, #001f3f, #004d7a);
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
     }
     .container {
-        background: rgba(255,255,255,0.05);
-        padding: 20px 30px;
-        border-radius: 10px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-        text-align: center;
-        width: 300px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 30px;
+      border-radius: 15px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      width: 320px;
+    }
+    h2 {
+      margin-bottom: 20px;
     }
     input[type="date"] {
-        width: 100%;
-        padding: 10px;
-        border-radius: 8px;
-        border: none;
-        outline: none;
-        font-size: 16px;
-        margin-top: 10px;
+      padding: 10px;
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      outline: none;
     }
     button {
-        margin-top: 15px;
-        padding: 10px 15px;
-        border: none;
-        border-radius: 8px;
-        background-color: #06b6d4;
-        color: white;
-        font-size: 16px;
-        cursor: pointer;
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #00bcd4;
+      border: none;
+      color: white;
+      font-size: 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
     }
     button:hover {
-        background-color: #0891b2;
+      background-color: #0097a7;
     }
-</style>
+    .result {
+      margin-top: 20px;
+      font-size: 18px;
+      line-height: 1.5;
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-    <h2>🎂 Birthdate Calculator</h2>
-    <form method="POST">
-        <input type="date" name="birthdate" required>
-        <br>
-        <button type="submit">Calculate</button>
-    </form>
-    <?php echo $result; ?>
-</div>
+  <div class="container">
+    <h2>Birthdate Age Calculator</h2>
+    <input type="date" id="birthdate" />
+    <button onclick="calculateAge()">Calculate</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <script>
+    function calculateAge() {
+      const birthInput = document.getElementById("birthdate").value;
+      const resultDiv = document.getElementById("result");
+
+      if (!birthInput) {
+        resultDiv.innerHTML = "⚠️ Please select your birthdate.";
+        return;
+      }
+
+      const birthDate = new Date(birthInput);
+      const today = new Date();
+
+      let years = today.getFullYear() - birthDate.getFullYear();
+      let months = today.getMonth() - birthDate.getMonth();
+      let days = today.getDate() - birthDate.getDate();
+
+      if (days < 0) {
+        months--;
+        const lastMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+        days += lastMonth.getDate();
+      }
+
+      if (months < 0) {
+        years--;
+        months += 12;
+      }
+
+      resultDiv.innerHTML = `
+        🎂 You are <b>${years}</b> years, <b>${months}</b> months, and <b>${days}</b> days old.
+      `;
+    }
+  </script>
 </body>
 </html>
